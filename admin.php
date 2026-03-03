@@ -56,6 +56,17 @@ $all_members_query = $conn->query("
     ORDER BY m.date_joined DESC
 ");
 
+if (!$all_members_query) {
+    // Fallback query without plain_password if column doesn't exist
+    $all_members_query = $conn->query("
+        SELECT m.id, m.full_name, m.email, m.phone, m.savings_amount, m.status, m.date_joined, m.profile_picture,
+               u.username, NULL as plain_password
+        FROM members m
+        LEFT JOIN users u ON m.user_id = u.id
+        ORDER BY m.date_joined DESC
+    ");
+}
+
 $error = '';
 $success = '';
 
@@ -698,7 +709,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['distribute_interest']
                                          </tr>
                                       </thead>
                                       <tbody>
-                                          <?php if ($all_members_query->num_rows > 0): ?>
+                                          <?php if ($all_members_query && $all_members_query->num_rows > 0): ?>
                                               <?php while ($member = $all_members_query->fetch_assoc()): ?>
                                                   <tr>
                                                       <td>
