@@ -712,7 +712,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['distribute_interest']
                                                       </td>
                                                       <td><strong><?php echo htmlspecialchars($member['full_name']); ?></strong></td>
                                                       <td>
-                                                          <code><?php echo htmlspecialchars($member['username'] ?? '—'); ?></code>
+                                                          <code><?php echo htmlspecialchars(isset($member['username']) && !empty($member['username']) ? $member['username'] : '—'); ?></code>
                                                       </td>
                                                       <td>
                                                           <?php if (isset($member['plain_password']) && !empty($member['plain_password'])): ?>
