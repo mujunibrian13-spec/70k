@@ -1,0 +1,275 @@
+================================================================================
+                 NEW CARD: GROUP SAVINGS EXCLUDING ALISON
+================================================================================
+
+A fifth card has been added to the Admin Dashboard that shows the breakdown of
+group savings with and without Aliganyira Alson's contribution.
+
+================================================================================
+                          CARD OVERVIEW
+================================================================================
+
+Location: Fourth card in the member-specific cards row on Admin Dashboard
+
+Card Title: "Other Members Savings"
+Subtitle: "Group savings excluding Alison"
+
+Color: Teal/Cyan border (#17a2b8)
+Icon: <i class="fas fa-chart-pie"></i> (Chart icon)
+
+================================================================================
+                         WHAT IT SHOWS
+================================================================================
+
+The card displays four key pieces of information:
+
+1. TOTAL GROUP SAVINGS
+   Label: "Total Group Savings"
+   Value: Sum of all members' savings (in UGX)
+   Color: Green
+   
+   Example: 10,500,000 UGX
+
+2. ALIGANYIRA ALSON'S SAVINGS
+   Label: "Aliganyira Alson's Savings"
+   Value: Alison's individual savings (in UGX)
+   Color: Blue/Purple
+   
+   Example: 500,000 UGX
+
+3. OTHER MEMBERS COMBINED (CALCULATED)
+   Label: "Other Members Combined"
+   Value: Total Savings - Alison's Savings
+   Color: Teal (highlighted)
+   
+   Example: 10,500,000 - 500,000 = 10,000,000 UGX
+
+4. ALISON'S PERCENTAGE
+   Label: "Info line"
+   Value: Alison's contribution as % of total
+   
+   Example: "Alison: 4.8% of total"
+
+================================================================================
+                          HOW IT CALCULATES
+================================================================================
+
+Formula:
+  Other Members Savings = Total Group Savings - Alison's Savings
+
+Example Scenario:
+  Total Group Savings:      10,500,000 UGX
+  Alison's Savings:             500,000 UGX
+  ────────────────────────────────────
+  Other Members Combined:   10,000,000 UGX
+  
+  Alison's Percentage:
+    (500,000 / 10,500,000) × 100 = 4.8% of total
+
+================================================================================
+                        VISUAL BREAKDOWN
+================================================================================
+
+Card Display:
+
+┌─────────────────────────────────────────────┐
+│ 📊 Other Members Savings                    │
+│ Group savings excluding Alison              │
+├─────────────────────────────────────────────┤
+│                                             │
+│ Total Group Savings                         │
+│ 10,500,000 UGX                              │
+│                                             │
+│ Aliganyira Alson's Savings                  │
+│ 500,000 UGX                                 │
+│                                             │
+│ ─────────────────────────────────────────── │
+│                                             │
+│ Other Members Combined                      │
+│ 10,000,000 UGX                              │
+│                                             │
+│ ℹ Alison: 4.8% of total                     │
+│                                             │
+└─────────────────────────────────────────────┘
+
+================================================================================
+                        USE CASES
+================================================================================
+
+Admin can use this card to:
+
+1. See group savings composition
+   - Know how much Alison contributes
+   - Know how much others contribute
+   - Understand group dynamics
+
+2. Analyze member participation
+   - Quick breakdown without manual calculation
+   - See percentage contribution at a glance
+   - Identify key contributors
+
+3. Loan amount decisions
+   - Know maximum available from other members
+   - Make informed lending decisions
+   - Balance group finances
+
+4. Member comparison
+   - Compare Alison's savings to rest of group
+   - Identify if one member dominates savings
+   - Ensure fair participation
+
+5. Financial health
+   - Monitor if group excluding one member still has funds
+   - Ensure group is not dependent on single member
+   - Track savings diversification
+
+================================================================================
+                      EXAMPLES
+================================================================================
+
+Scenario 1: Alison is major contributor
+
+Total Savings: 5,000,000 UGX
+Alison: 2,500,000 UGX
+Others: 2,500,000 UGX
+Alison %: 50% of total
+
+Result: Group is balanced, but dependent on Alison
+
+───────────────────────────────────────────────
+
+Scenario 2: Alison is minor contributor
+
+Total Savings: 10,000,000 UGX
+Alison: 500,000 UGX
+Others: 9,500,000 UGX
+Alison %: 5% of total
+
+Result: Group is healthy with diverse contributors
+
+───────────────────────────────────────────────
+
+Scenario 3: Alison is new/no savings yet
+
+Total Savings: 8,000,000 UGX
+Alison: 0 UGX
+Others: 8,000,000 UGX
+Alison %: 0% of total
+
+Result: Alison hasn't contributed yet
+
+================================================================================
+                       TECHNICAL DETAILS
+================================================================================
+
+Data Source:
+  - Total Savings: From $total_savings (calculated earlier in admin.php)
+  - Alison Savings: From $alison_savings (fetched from members table)
+
+Calculation:
+  $other_members_savings = $total_savings - $alison_savings
+
+Percentage Calculation:
+  $alison_percentage = ($alison_savings / $total_savings) × 100
+  Formatted to 1 decimal place using number_format()
+
+Display Format:
+  All amounts formatted using formatCurrency() function
+  Percentage shown with 1 decimal place
+
+Error Handling:
+  If total_savings = 0: Shows "No savings recorded"
+  If no member found: Uses $alison_savings = 0
+  Graceful calculation without division errors
+
+================================================================================
+                      FILE MODIFIED
+================================================================================
+
+admin.php
+  - Added new card after Card 3 (Interest Sharing Details)
+  - New card spans full width in responsive grid
+  - Uses existing variables ($total_savings, $alison_savings)
+  - Calculates difference on the fly
+  - Calculates percentage
+
+Location in file:
+  Lines ~510-550 (approximate, after Interest Sharing Card)
+
+No database changes required
+No new queries needed
+No new tables required
+
+================================================================================
+                    CARD POSITIONING
+================================================================================
+
+The four member-specific cards are now arranged as:
+
+Desktop (4 columns):
+  ┌────────────────────────────────────────────────────┐
+  │ Card 1: Alison Profile │ Card 2: Interest Distribution │
+  │ Card 3: Interest Sharing │ Card 4: Group Savings Breakdown │
+  └────────────────────────────────────────────────────┘
+
+Tablet (2 columns):
+  ┌────────────────────────────────────────────────────┐
+  │ Card 1 │ Card 2 │
+  │ Card 3 │ Card 4 │
+  └────────────────────────────────────────────────────┘
+
+Mobile (1 column):
+  ┌─────────────────────────┐
+  │ Card 1                  │
+  │ Card 2                  │
+  │ Card 3                  │
+  │ Card 4                  │
+  └─────────────────────────┘
+
+================================================================================
+                    WHAT MAKES THIS USEFUL
+================================================================================
+
+Instant Insights:
+  ✓ No manual calculation required
+  ✓ Real-time data from database
+  ✓ Updated automatically
+  ✓ One glance comparison
+
+Key Information:
+  ✓ Group financial composition
+  ✓ Individual vs group contribution
+  ✓ Percentage share instantly
+  ✓ Other members' combined strength
+
+Decision Making:
+  ✓ Loan approval decisions
+  ✓ Risk assessment
+  ✓ Member management
+  ✓ Financial planning
+
+Monitoring:
+  ✓ Track savings growth
+  ✓ Monitor participation
+  ✓ Identify trends
+  ✓ Spot imbalances
+
+================================================================================
+                      READY TO USE
+================================================================================
+
+The card is now live on the Admin Dashboard!
+
+Just log in as admin:
+  Email: admin@70k.local
+  Password: admin123
+
+You will see:
+  ✓ Card 1: Alison Profile (with savings, loans, interest)
+  ✓ Card 2: Interest Distribution (total group interest)
+  ✓ Card 3: Interest Sharing Details (member participation)
+  ✓ Card 4: Group Savings Breakdown (NEW!) ← Shows this calculation
+
+All cards update automatically with real data from database.
+
+================================================================================

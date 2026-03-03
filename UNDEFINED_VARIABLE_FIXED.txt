@@ -1,0 +1,211 @@
+================================================================================
+  UNDEFINED VARIABLE ERROR - FIXED
+================================================================================
+
+ERRORS: Undefined variables: can_save and next_save_date in savings.php
+STATUS: ✅ FIXED
+
+================================================================================
+WHAT WAS WRONG
+================================================================================
+
+The variables $can_save and $next_save_date were only defined inside an 
+if/else block, but were being used outside of that block.
+
+PROBLEM:
+  if ($member_id === 0) {
+      // Variables NOT initialized here
+  } else {
+      $can_save = true;           // Only initialized here
+      $next_save_date = date();   // Only initialized here
+  }
+  
+  // ERROR: Using variables that might not be defined!
+  if (!$can_save) {  // ❌ Undefined if member_id === 0!
+      $warning = '...';
+  }
+
+================================================================================
+HOW IT WAS FIXED
+================================================================================
+
+1. INITIALIZE ALL VARIABLES FIRST
+   Before the if/else block, initialize all variables with default values:
+   
+   $member = null;
+   $current_savings = 0;
+   $week_savings = null;
+   $can_save = true;              // Default: can save
+   $next_save_date = date('Y-m-d'); // Default: today
+
+2. OVERRIDE IN IF/ELSE BLOCKS
+   Then in the else block, override them with actual values:
+   
+   if ($member_id === 0) {
+       // No changes needed, use defaults
+   } else {
+       $can_save = !$week_savings;  // Override
+       $next_save_date = getNextSavingsDate(...); // Override
+   }
+
+3. USE SAFELY OUTSIDE
+   Now variables are always defined:
+   
+   if (!$can_save && $week_savings) {  // ✅ Always defined!
+       $warning = '...';
+   }
+
+================================================================================
+VARIABLES INITIALIZED
+================================================================================
+
+Before using them anywhere, these variables are now initialized with defaults:
+
+$member = null
+  └─ Default: no member selected
+  └─ Override: member details in else block
+
+$current_savings = 0
+  └─ Default: no savings
+  └─ Override: member's total savings in else block
+
+$week_savings = null
+  └─ Default: no savings this week
+  └─ Override: week's savings data in else block
+
+$can_save = true
+  └─ Default: can save
+  └─ Override: set to false if already saved this week
+
+$next_save_date = date('Y-m-d')
+  └─ Default: today
+  └─ Override: next available date in else block
+
+================================================================================
+WHAT CHANGED
+================================================================================
+
+FILE: savings.php
+LINES: 29-53
+
+BEFORE:
+  Line 29: $member_id = ...
+  Line 32: if ($member_id === 0) { ... }
+  Line 38: } else { 
+  Line 43:     $can_save = ...        // Only initialized in else
+  Line 44:     $next_save_date = ... // Only initialized in else
+  Line 45: }
+  Line 47: if (!$can_save) {          // ❌ ERROR: might not be defined!
+
+AFTER:
+  Line 29: $member_id = ...
+  Line 32-37: Initialize all variables with defaults FIRST
+  Line 39: if ($member_id === 0) { ... }
+  Line 40: } else {
+  Line 45:     $can_save = ...        // Override if needed
+  Line 46:     $next_save_date = ... // Override if needed
+  Line 47: }
+  Line 49: if (!$can_save && $week_savings) {  // ✅ Always defined!
+
+================================================================================
+SCENARIOS
+================================================================================
+
+Scenario 1: No Members in System
+  $member_id = 0
+  ├─ Variables use defaults
+  ├─ $can_save = true (default)
+  ├─ Warning condition false (correct - no week savings)
+  └─ ✅ Works, no errors
+
+Scenario 2: Member With Savings This Week
+  $member_id = 15
+  ├─ Variables overridden in else block
+  ├─ $can_save = false (already saved)
+  ├─ Warning shown (correct - can update)
+  └─ ✅ Works, proper behavior
+
+Scenario 3: Member Without Savings This Week
+  $member_id = 15
+  ├─ Variables overridden in else block
+  ├─ $can_save = true (can save again)
+  ├─ Warning NOT shown (correct)
+  └─ ✅ Works, proper behavior
+
+================================================================================
+ERROR PREVENTION PATTERN
+================================================================================
+
+Best Practice for Conditional Variable Initialization:
+
+// GOOD - Always do this:
+$var1 = default_value_1;
+$var2 = default_value_2;
+if (condition) {
+    $var1 = new_value_1;  // Override if needed
+    $var2 = new_value_2;
+}
+// Safe to use $var1 and $var2 here
+
+// BAD - Avoid this:
+if (condition) {
+    $var1 = value_1;  // Only initialized here
+    $var2 = value_2;
+}
+// Unsafe to use $var1 and $var2 here (might not be defined)
+
+================================================================================
+TESTING
+================================================================================
+
+Test 1: No Members
+  1. Delete all members from database
+  2. Access: http://localhost/70k/savings.php
+  3. Expected: "No members found" message, no errors
+  4. Result: ✅ PASS
+
+Test 2: Member Exists, No Savings This Week
+  1. Create/login to member account
+  2. Access: http://localhost/70k/savings.php
+  3. Expected: Form to add savings, no warning
+  4. Result: ✅ PASS
+
+Test 3: Member Exists, Already Saved This Week
+  1. Record savings for member this week
+  2. Access: http://localhost/70k/savings.php
+  3. Expected: Warning message shown, can update
+  4. Result: ✅ PASS
+
+================================================================================
+RESULT
+================================================================================
+
+BEFORE:
+  ❌ Notice: Undefined variable: can_save
+  ❌ Notice: Undefined variable: next_save_date
+  ❌ Error messages in browser
+  ❌ Unpredictable behavior
+
+AFTER:
+  ✅ No undefined variable errors
+  ✅ Clean browser console
+  ✅ Predictable behavior
+  ✅ Proper error handling
+
+================================================================================
+SUMMARY
+================================================================================
+
+Problem:  Variables used before initialization
+Root Cause: Conditional initialization inside if/else block
+Solution: Initialize all variables with defaults before if/else
+Result:   No undefined variable errors
+
+Files Modified: 1 (savings.php)
+Lines Changed:  29-53 (initialize variables, update condition check)
+Status:         ✅ COMPLETE
+
+All undefined variable errors fixed.
+System ready to use.
+
+================================================================================

@@ -1,0 +1,297 @@
+================================================================================
+                    MEMBER SAVINGS STATEMENT PDF
+                          Implementation Guide
+================================================================================
+
+A new PDF statement feature has been added that allows admins and members to
+download a professional savings statement as a PDF file.
+
+================================================================================
+                        WHAT'S INCLUDED
+================================================================================
+
+1. PDF GENERATOR (config/pdf_generator.php)
+   - generateSavingsStatementPDF() - Generates PDF HTML content
+   - generateSavingsTableRows() - Creates savings history table
+   - outputPDF() - Outputs PDF with fallback options
+
+2. DOWNLOAD HANDLER (download_savings_statement.php)
+   - Handles PDF generation and download
+   - Security checks for authentication
+   - Admin and member access control
+
+3. UI INTEGRATION (savings.php)
+   - "Download Statement" button added to page header
+   - Visible when member is selected
+   - Links to PDF download
+
+================================================================================
+                        HOW IT WORKS
+================================================================================
+
+ADMIN FLOW:
+1. Admin goes to Admin Dashboard → "Add Savings"
+2. Selects a member from dropdown
+3. "Download Statement" button appears in top right
+4. Clicks button
+5. PDF downloads: "Savings_Statement_[Name]_[Date].pdf"
+
+MEMBER FLOW (if extended):
+1. Member logs in
+2. Goes to profile or savings page
+3. Clicks "Download Statement" (if added to member pages)
+4. PDF downloads with their own statement
+
+PDF CONTENTS:
+✓ Header: System name, statement type, generation date/time
+✓ Member Info: Name, ID, email, phone, join date
+✓ Summary: Total savings, number of entries, statement date
+✓ Savings History Table:
+  - Date
+  - Type (Voluntary/Mandatory)
+  - Payment Method (Cash/Bank/Mobile Money)
+  - Receipt Number
+  - Notes
+  - Amount (formatted as UGX)
+✓ Footer: Statement authenticity notice, document reference
+
+================================================================================
+                      FEATURES
+================================================================================
+
+SECURITY:
+✓ Requires login (isLoggedIn() check)
+✓ Admin can download any member's statement
+✓ Regular members can only download their own
+✓ Member ID validation
+
+FORMATTING:
+✓ Professional table layout
+✓ Currency formatted (UGX with comma separators)
+✓ Dates formatted (d/m/Y)
+✓ Color-coded sections
+✓ Responsive table with alternating row colors
+
+FALLBACK OPTIONS:
+✓ Primary: mPDF library (if installed)
+✓ Secondary: TCPDF library (if installed)
+✓ Fallback: HTML output (browser prints as PDF)
+
+FILENAME:
+✓ Format: "Savings_Statement_[Name]_[Date].pdf"
+✓ Special characters removed from name
+✓ Includes date for easy tracking
+✓ Example: "Savings_Statement_John_Smith_2026-03-03.pdf"
+
+================================================================================
+                      PDF SECTIONS
+================================================================================
+
+HEADER SECTION:
+  70K Savings & Loans Management System
+  Member Savings Statement
+  Generated on: [Date and Time]
+
+MEMBER INFORMATION:
+  Member Name: [Full Name]
+  Member ID: [ID]
+  Email: [Email Address]
+  Phone: [Phone Number]
+  Member Since: [Join Date]
+
+SUMMARY BOXES:
+  Total Savings: [Amount UGX]
+  Savings Entries: [Count]
+  Statement Date: [Date]
+
+SAVINGS HISTORY TABLE:
+  Columns: Date | Type | Method | Receipt Number | Notes | Amount (UGX)
+  Rows: Each savings record in reverse chronological order
+
+FOOTER:
+  Authenticity notice
+  Contact information
+  Document reference: MBR-[ID]-[Timestamp]
+
+================================================================================
+                    USAGE EXAMPLES
+================================================================================
+
+FOR ADMIN:
+1. Select member in "Add Savings" page
+2. Click "Download Statement" button
+3. Browser downloads PDF
+4. Admin can print or email to member
+
+FOR MEMBER (if added to profile page):
+1. Log in as member
+2. Go to profile or savings page
+3. Click "Download My Statement"
+4. Browser downloads their PDF statement
+
+FOR RECORD KEEPING:
+1. Admin downloads statement
+2. Saves for audit trail
+3. Uses as proof of savings
+4. For member inquiries
+
+FOR SHARING:
+1. Admin downloads statement
+2. Emails to member
+3. Member prints if needed
+4. Member shares with family/others
+
+================================================================================
+                      EXTENSION POINTS
+================================================================================
+
+To add to other pages:
+
+PROFILE PAGE:
+  Add button in profile.php:
+  <a href="download_savings_statement.php" class="btn btn-primary">
+      <i class="fas fa-download"></i> Download Statement
+  </a>
+
+MEMBER DASHBOARD:
+  Add card or button in index.php:
+  <a href="download_savings_statement.php" class="btn btn-sm btn-primary">
+      <i class="fas fa-download"></i> My Savings Statement
+  </a>
+
+ADMIN MEMBERS TAB:
+  Add action button in admin.php:
+  <a href="download_savings_statement.php?member_id=[ID]" class="btn btn-sm">
+      <i class="fas fa-download"></i> Statement
+  </a>
+
+================================================================================
+                    CUSTOMIZATION OPTIONS
+================================================================================
+
+To customize the PDF:
+
+COLORS:
+  Edit config/pdf_generator.php, style section:
+  - Header: #1a5490 (blue)
+  - Borders: #333 (dark)
+  - Summary boxes: #f0f7ff (light blue)
+  - Amount text: #28a745 (green)
+
+FONTS:
+  In style section, change:
+  font-family: Arial, sans-serif;
+  To desired font
+
+SECTIONS:
+  Add more fields in generateSavingsStatementPDF():
+  - Interest earnings
+  - Loan history
+  - Transaction history
+  - Monthly breakdown
+  - Percentage of group savings
+
+HEADER/FOOTER:
+  Modify header and footer sections in HTML
+  Add logo (requires image handling)
+  Add company address/contact info
+  Add signature lines for printing
+
+================================================================================
+                      TECHNICAL DETAILS
+================================================================================
+
+FILES CREATED:
+1. config/pdf_generator.php
+   - PDF generation functions
+   - HTML template for statement
+   - Table row generation
+
+2. download_savings_statement.php
+   - Request handler
+   - Authentication & authorization
+   - File download mechanism
+
+FILES MODIFIED:
+1. savings.php
+   - Added "Download Statement" button
+   - Button only shows when member selected
+
+DEPENDENCIES:
+- Optional: mPDF library (composer require mpdf/mpdf)
+- Optional: TCPDF library (composer require tecnickcom/tcpdf)
+- Fallback: Pure HTML/CSS (works without libraries)
+
+SECURITY CONSIDERATIONS:
+- Authentication required
+- Authorization checks (admin vs member)
+- XSS prevention with htmlspecialchars()
+- SQL injection prevention with prepared statements
+- Safe filename generation
+
+================================================================================
+                      INSTALLATION NOTES
+================================================================================
+
+NO INSTALLATION REQUIRED:
+- Fallback mode works without any libraries
+- Browser treats HTML output as downloadable
+- Works on any PHP installation
+
+OPTIONAL IMPROVEMENTS:
+1. Install mPDF for better PDF rendering:
+   composer require mpdf/mpdf
+
+2. Install TCPDF for alternative rendering:
+   composer require tecnickcom/tcpdf
+
+ENABLING ON OTHER PAGES:
+1. Include download link in profile.php
+2. Add button in member dashboard
+3. Add column in admin members list
+4. Customize as needed
+
+================================================================================
+                      TESTING
+================================================================================
+
+TO TEST:
+
+1. LOGIN AS ADMIN
+2. GO TO ADMIN DASHBOARD → ADD SAVINGS
+3. SELECT A MEMBER
+4. CLICK "DOWNLOAD STATEMENT" BUTTON
+5. PDF SHOULD DOWNLOAD
+6. OPEN AND VERIFY:
+   ✓ Member details correct
+   ✓ Savings history shows
+   ✓ Amounts correct
+   ✓ Formatting looks professional
+   ✓ Dates formatted correctly
+
+TROUBLESHOOTING:
+- If HTML downloads instead of PDF: Fallback mode active (normal)
+- If nothing happens: Check browser console for errors
+- If member not found: Ensure member_id is valid
+- If styling broken: Check CSS in pdf_generator.php
+
+================================================================================
+                      READY TO USE
+================================================================================
+
+The PDF statement feature is ready to use!
+
+To download a member's savings statement:
+1. Go to Admin Dashboard → Add Savings
+2. Select a member
+3. Click "Download Statement"
+4. PDF downloads automatically
+
+The PDF includes:
+✓ Member information
+✓ Summary of savings
+✓ Complete savings history
+✓ Professional formatting
+✓ Document reference number
+
+================================================================================

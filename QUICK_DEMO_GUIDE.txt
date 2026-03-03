@@ -1,0 +1,197 @@
+================================================================================
+                    QUICK DEMO GUIDE (60 SECOND START)
+================================================================================
+
+STEP 1: OPEN DEMO START PAGE
+  URL: http://localhost/70k/demo-start.php
+  (Beautiful landing page with all options)
+
+STEP 2: CREATE DEMO MEMBER
+  Click: "Create Demo Member" button
+  (System automatically sets up test member)
+
+STEP 3: USE THESE CREDENTIALS
+  Admin:  admin@70k.local / admin123
+  Member: demo@70k.local / demo123
+
+STEP 4: START DEMOING!
+  ✓ Login as member - see dashboard
+  ✓ Login as admin - manage everything
+
+================================================================================
+                         QUICK FEATURE OVERVIEW
+================================================================================
+
+NEW FEATURE #1: SEARCHABLE MEMBER SELECTION ⭐
+  Where: Admin → Add Savings page
+  How: Type member name or email to search
+  Why: Much faster than scrolling dropdowns
+  Demo: "Notice how easy it is to find John..."
+
+NEW FEATURE #2: EDIT MEMBER PROFILE ⭐
+  Where: Admin → All Members → Click "Edit"
+  How: Update any member information
+  Why: Central place for member management
+  Demo: "Change phone, address, status..."
+
+NEW FEATURE #3: DELETE & RESTORE (HEADLINE!) ⭐⭐⭐
+  Where: Edit Member page → Scroll down
+  How: 
+    1. Click "Delete Member" (red button)
+    2. Type email to confirm
+    3. Click "Delete Permanently"
+    4. Go to Dashboard
+    5. See "Recently Deleted Members" panel
+    6. Click "Restore" button
+  Why: Safe deletion with 24-hour undo
+  Demo: "This is the killer feature - delete and instantly restore!"
+
+================================================================================
+                         DEMO TIMING (33 MIN TOTAL)
+================================================================================
+
+Part 1: Member Features (10 min)
+  - Login as demo member
+  - View dashboard
+  - View savings
+  - Apply for loan
+  - View reports
+
+Part 2: Searchable Savings (8 min)
+  - Go to Add Savings
+  - Show NEW search dropdown
+  - Type "John" to search
+  - Add 250,000 UGX savings
+  - Show updated totals
+
+Part 3: Edit Member (10 min)
+  - Go to All Members
+  - Click NEW "Edit" button
+  - Update phone number
+  - Save changes
+  - Go back and verify
+
+Part 4: Loan Approval (5 min)
+  - Find pending loan
+  - Approve it
+  - Show it becomes active
+
+Part 5: DELETE & RESTORE DEMO (8 min) - THE STAR!
+  - Click "Delete Member" button
+  - Show scary warning dialog
+  - Type email to confirm
+  - Watch member get deleted
+  - Return to dashboard
+  - Show "Recently Deleted Members" section
+  - Click "Restore" button
+  - Watch member come back instantly!
+  - "This is the undo feature - safe deletion!"
+
+================================================================================
+                         KEY SELLING POINTS
+================================================================================
+
+1. IMPROVED USER EXPERIENCE
+   "See how easy member selection is now? Just type the name!"
+
+2. COMPREHENSIVE MEMBER MANAGEMENT
+   "Admins can edit any member information from one place."
+
+3. SAFE DELETION WITH RECOVERY
+   "Multiple safety layers + 24-hour undo = peace of mind!"
+
+4. COMPLETE AUDIT TRAIL
+   "We track who did what, when, and why - full compliance."
+
+5. PROFESSIONAL INTERFACE
+   "Clean, intuitive design. Your team will love using this."
+
+================================================================================
+                         CREDENTIALS
+================================================================================
+
+ADMIN:
+  Email: admin@70k.local
+  Pass:  admin123
+
+DEMO MEMBER:
+  Email: demo@70k.local
+  Pass:  demo123
+
+================================================================================
+                         WHAT TO SHOW
+================================================================================
+
+✓ Member login and dashboard
+✓ New searchable member dropdown (savings page)
+✓ Edit member profile page
+✓ Add/update member savings
+✓ Delete member with confirmation modal
+✓ Restore deleted member (THE WOW FACTOR!)
+✓ Recently deleted members panel
+✓ Complete transaction reports
+✓ Loan approval workflow
+✓ Payment approval workflow
+
+================================================================================
+                         WHAT TO EMPHASIZE
+================================================================================
+
+"The delete and restore feature is the standout feature."
+  → Email confirmation required
+  → Shows what will be deleted
+  → 24-hour undo window
+  → One-click restoration
+  → Complete audit trail
+
+"Member selection is now super fast."
+  → Type to search
+  → No scrolling through lists
+  → Real-time filtering
+  → Much better UX
+
+"Member management is centralized."
+  → One page for all member info
+  → Easy to update details
+  → Quick action buttons
+  → Professional layout
+
+================================================================================
+                         TROUBLESHOOTING
+================================================================================
+
+Q: Demo member not created?
+A: Refresh page, database must be running
+
+Q: Can't login?
+A: Clear cookies, try incognito window
+
+Q: Delete button not there?
+A: Make sure you're in edit_member.php
+
+Q: Restore not working?
+A: Check SQL tables were created (see setup docs)
+
+================================================================================
+                         DOCUMENTATION
+================================================================================
+
+For more details, read:
+  - GETTING_STARTED.md (complete walkthrough)
+  - DEMO_CHECKLIST.md (detailed demo script)
+  - IMPLEMENTATION_SUMMARY.txt (all changes)
+  - UNDO_DELETE_MEMBER_FEATURE.md (feature details)
+
+================================================================================
+                         YOU'RE READY!
+================================================================================
+
+Everything is set up and ready to go.
+
+1. Open: http://localhost/70k/demo-start.php
+2. Click: Create Demo Member
+3. Demo: All features
+4. Impress: Your audience with the delete/restore feature!
+
+Good luck! 🚀
+================================================================================
