@@ -139,6 +139,35 @@ if ($total_interest_result) {
     $total_interest_distributed = $total_interest_row['total'];
 }
 
+// Get weekly member savings data (last 10 weeks)
+$weekly_member_savings = array();
+$weekly_savings_query = "
+    SELECT 
+        WEEK(s.savings_date) as week_number,
+        YEAR(s.savings_date) as year,
+        m.full_name,
+        SUM(s.savings_amount) as weekly_amount
+    FROM savings s
+    JOIN members m ON s.member_id = m.id
+    WHERE s.savings_date >= DATE_SUB(NOW(), INTERVAL 10 WEEK)
+    GROUP BY YEAR(s.savings_date), WEEK(s.savings_date), m.full_name
+    ORDER BY YEAR(s.savings_date), WEEK(s.savings_date), m.full_name
+";
+$weekly_result = $conn->query($weekly_savings_query);
+if ($weekly_result) {
+    while ($row = $weekly_result->fetch_assoc()) {
+        $week_key = $row['year'] . '-W' . $row['week_number'];
+        if (!isset($weekly_member_savings[$week_key])) {
+            $weekly_member_savings[$week_key] = array(
+                'week_number' => $row['week_number'],
+                'year' => $row['year'],
+                'members' => array()
+            );
+        }
+        $weekly_member_savings[$week_key]['members'][$row['full_name']] = floatval($row['weekly_amount']);
+    }
+}
+
 // Handle loan approval
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['approve_loan'])) {
     $loan_id = intval($_POST['loan_id']);
@@ -209,6 +238,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['distribute_interest']
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
@@ -586,6 +618,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['distribute_interest']
                         <i class="fas fa-percentage"></i> Interest Distribution
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="weekly-charts-tab" data-bs-toggle="tab" data-bs-target="#weekly-charts" type="button" role="tab">
+                        <i class="fas fa-chart-bar"></i> Weekly Member Savings Charts
+                    </button>
+                </li>
             </ul>
 
             <!-- Tab Content -->
@@ -815,6 +852,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['distribute_interest']
                                 <strong>Note:</strong> This will calculate 2% monthly interest on all outstanding loans 
                                 and distribute it to members based on their savings ratio.
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Member Savings Charts Tab -->
+                <div class="tab-pane fade" id="weekly-charts" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-chart-bar"></i> Weekly Member Savings Charts (Last 10 Weeks)</h5>
+                        </div>
+                        <div class="card-body">
+                            <?php if (count($weekly_member_savings) > 0): ?>
+                                <div class="row">
+                                    <?php foreach ($weekly_member_savings as $week_key => $week_data): ?>
+                                    <div class="col-lg-6 mb-4">
+                                        <div class="card">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0">Week <?php echo $week_data['week_number']; ?> - <?php echo $week_data['year']; ?></h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <canvas id="chart-<?php echo str_replace('-', '_', $week_key); ?>" style="max-height: 300px;"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+
+                                <!-- Chart Script -->
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const weeklyData = <?php echo json_encode($weekly_member_savings); ?>;
+                                        
+                                        Object.keys(weeklyData).forEach(function(weekKey) {
+                                            const week = weeklyData[weekKey];
+                                            const chartId = 'chart-' + weekKey.replace('-', '_');
+                                            const chartElement = document.getElementById(chartId);
+                                            
+                                            if (chartElement) {
+                                                const members = Object.keys(week.members);
+                                                const amounts = Object.values(week.members);
+                                                const colors = [
+                                                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+                                                    '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384', '#36A2EB', '#FFCE56'
+                                                ];
+                                                
+                                                new Chart(chartElement, {
+                                                    type: 'bar',
+                                                    data: {
+                                                        labels: members,
+                                                        datasets: [{
+                                                            label: 'Weekly Savings (UGX)',
+                                                            data: amounts,
+                                                            backgroundColor: colors.slice(0, members.length),
+                                                            borderColor: '#1a5490',
+                                                            borderWidth: 1
+                                                        }]
+                                                    },
+                                                    options: {
+                                                        responsive: true,
+                                                        maintainAspectRatio: true,
+                                                        indexAxis: 'x',
+                                                        plugins: {
+                                                            legend: {
+                                                                display: true,
+                                                                labels: {
+                                                                    font: { size: 11 },
+                                                                    padding: 10
+                                                                }
+                                                            },
+                                                            tooltip: {
+                                                                callbacks: {
+                                                                    label: function(context) {
+                                                                        const value = parseInt(context.parsed.y).toLocaleString('en-US');
+                                                                        return 'UGX ' + value;
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        scales: {
+                                                            y: {
+                                                                beginAtZero: true,
+                                                                ticks: {
+                                                                    callback: function(value) {
+                                                                        return 'UGX ' + value.toLocaleString('en-US');
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    });
+                                </script>
+                            <?php else: ?>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> No weekly savings data available for the last 10 weeks
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
