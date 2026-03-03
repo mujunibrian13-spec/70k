@@ -35,35 +35,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $result->fetch_assoc();
             
             // Verify password
-            if (verifyPassword($password, $user['password'])) {
-                // Set session variables
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_name'] = $user['full_name'];
-                $_SESSION['user_email'] = $user['email'];
-                $_SESSION['user_role'] = $user['role'];
-                
-                // If member, get member_id
-                if ($user['role'] === 'member') {
-                    $member_query = "SELECT id FROM members WHERE user_id = ?";
-                    $member_stmt = $conn->prepare($member_query);
-                    $member_stmt->bind_param('i', $user['id']);
-                    $member_stmt->execute();
-                    $member_result = $member_stmt->get_result();
-                    if ($member_result->num_rows === 1) {
-                        $member = $member_result->fetch_assoc();
-                        $_SESSION['member_id'] = $member['id'];
-                    }
-                }
-                
-                // Log successful login
-                logError("User '{$username}' logged in successfully", 'INFO');
-                
-                // Redirect to appropriate dashboard based on role
-                if ($user['role'] === 'admin') {
-                    redirect('admin.php');
-                } else {
-                    redirect('index.php');
-                }
+             if (verifyPassword($password, $user['password'])) {
+                 // Update last_login timestamp
+                 $login_update = "UPDATE users SET last_login = NOW(), updated_at = NOW() WHERE id = ?";
+                 $login_stmt = $conn->prepare($login_update);
+                 if ($login_stmt) {
+                     $login_stmt->bind_param('i', $user['id']);
+                     $login_stmt->execute();
+                 }
+                 
+                 // Set session variables
+                 $_SESSION['user_id'] = $user['id'];
+                 $_SESSION['user_name'] = $user['full_name'];
+                 $_SESSION['user_email'] = $user['email'];
+                 $_SESSION['user_role'] = $user['role'];
+                 
+                 // If member, get member_id
+                 if ($user['role'] === 'member') {
+                     $member_query = "SELECT id FROM members WHERE user_id = ?";
+                     $member_stmt = $conn->prepare($member_query);
+                     $member_stmt->bind_param('i', $user['id']);
+                     $member_stmt->execute();
+                     $member_result = $member_stmt->get_result();
+                     if ($member_result->num_rows === 1) {
+                         $member = $member_result->fetch_assoc();
+                         $_SESSION['member_id'] = $member['id'];
+                     }
+                 }
+                 
+                 // Log successful login
+                 logError("User '{$username}' logged in successfully", 'INFO');
+                 
+                 // Redirect to appropriate dashboard based on role
+                 if ($user['role'] === 'admin') {
+                     redirect('admin.php');
+                 } else {
+                     redirect('index.php');
+                 }
             } else {
                 $error = 'Invalid password';
             }
