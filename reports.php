@@ -102,6 +102,30 @@ foreach ($weekly_savings as $index => $week) {
 $weekly_labels_json = json_encode($weekly_labels);
 $weekly_data_json = json_encode($weekly_data);
 $week_colors_json = json_encode($week_colors);
+
+// Get current week's savings
+$current_week_query = "
+    SELECT 
+        DATE(savings_date) as savings_date,
+        savings_amount,
+        savings_type,
+        payment_method
+    FROM savings 
+    WHERE member_id = ? 
+    AND WEEK(savings_date) = WEEK(NOW())
+    AND YEAR(savings_date) = YEAR(NOW())
+    ORDER BY savings_date DESC
+";
+$current_week_stmt = $conn->prepare($current_week_query);
+$current_week_stmt->bind_param('i', $member_id);
+$current_week_stmt->execute();
+$current_week_savings = $current_week_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Calculate current week total
+$current_week_total = 0;
+foreach ($current_week_savings as $saving) {
+    $current_week_total += $saving['savings_amount'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -523,9 +547,61 @@ $week_colors_json = json_encode($week_colors);
                 </div>
             </div>
 
-            <!-- Weekly Savings Pie Chart -->
+            <!-- Current Week Savings -->
             <div class="row mt-4">
-                <div class="col-lg-6 mx-auto">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5><i class="fas fa-calendar-week"></i> This Week's Savings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3 text-center">
+                                <div style="font-size: 2rem; color: #28a745; font-weight: bold;">
+                                    <?php echo formatCurrency($current_week_total); ?>
+                                </div>
+                                <p class="text-muted mb-0"><?php echo count($current_week_savings); ?> transactions</p>
+                            </div>
+
+                            <?php if (count($current_week_savings) > 0): ?>
+                                <table class="table table-sm table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Type</th>
+                                            <th>Method</th>
+                                            <th class="text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($current_week_savings as $saving): ?>
+                                        <tr>
+                                            <td>
+                                                <small><?php echo date('M d (D)', strtotime($saving['savings_date'])); ?></small>
+                                            </td>
+                                            <td>
+                                                <small><?php echo ucfirst($saving['savings_type']); ?></small>
+                                            </td>
+                                            <td>
+                                                <small><span class="badge badge-info"><?php echo ucfirst(str_replace('_', ' ', $saving['payment_method'])); ?></span></small>
+                                            </td>
+                                            <td class="text-right">
+                                                <small class="text-success"><strong><?php echo formatCurrency($saving['savings_amount']); ?></strong></small>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            <?php else: ?>
+                                <div class="alert alert-info mb-0">
+                                    <i class="fas fa-info-circle"></i> No savings recorded this week
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Savings Pie Chart -->
+                <div class="col-lg-6">
                     <div class="card">
                         <div class="card-header">
                             <h5><i class="fas fa-chart-pie"></i> Weekly Savings Distribution (Last 12 Weeks)</h5>
