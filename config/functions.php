@@ -921,22 +921,30 @@ function adminResetMemberPassword($conn, $user_id, $new_password) {
        }
        
        // Restore member
-       $restore_query = "INSERT INTO members (id, full_name, email, phone, national_id, address, savings_amount, status, date_joined) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+       $restore_query = "INSERT INTO members (id, full_name, email, phone, nin, identification_number, address, occupation, profile_picture, savings_amount, status, date_joined) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
        $restore_stmt = $conn->prepare($restore_query);
        
        if (!$restore_stmt) {
            throw new Exception('Prepare failed: ' . $conn->error);
        }
        
+       $nin = isset($backup['nin']) ? $backup['nin'] : (isset($backup['national_id']) ? $backup['national_id'] : '');
+       $ident_number = isset($backup['identification_number']) ? $backup['identification_number'] : '';
+       $occupation = isset($backup['occupation']) ? $backup['occupation'] : '';
+       $profile_pic = isset($backup['profile_picture']) ? $backup['profile_picture'] : '';
+       
        $restore_stmt->bind_param(
-           'isssssdss',
+           'issssssssdss',
            $member_id,
            $backup['full_name'],
            $backup['email'],
            $backup['phone'],
-           $backup['national_id'],
+           $nin,
+           $ident_number,
            $backup['address'],
+           $occupation,
+           $profile_pic,
            $backup['savings_amount'],
            $backup['status'],
            $backup['date_joined']
