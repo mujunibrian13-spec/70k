@@ -70,7 +70,7 @@ $query = "SELECT m.id, m.full_name, m.savings_amount,
 $result = $conn->query($query);
 $all_members_savings = $result->fetch_all(MYSQLI_ASSOC);
 
-// Get weekly savings for current member (last 12 weeks)
+// Get weekly savings for current member (last 10 months)
 $weekly_savings_query = "
     SELECT 
         WEEK(savings_date) as week_number,
@@ -78,7 +78,7 @@ $weekly_savings_query = "
         SUM(savings_amount) as weekly_amount,
         DATE_FORMAT(MIN(savings_date), '%b %d') as week_start
     FROM savings 
-    WHERE member_id = ? AND savings_date >= DATE_SUB(NOW(), INTERVAL 12 WEEK)
+    WHERE member_id = ? AND savings_date >= DATE_SUB(NOW(), INTERVAL 10 MONTH)
     GROUP BY YEAR(savings_date), WEEK(savings_date)
     ORDER BY YEAR(savings_date), WEEK(savings_date)
 ";
@@ -91,7 +91,16 @@ $weekly_savings = $weekly_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $weekly_labels = array();
 $weekly_data = array();
 $week_colors = array();
-$colors = array('#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384', '#36A2EB', '#FFCE56');
+$colors = array(
+    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', 
+    '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384', '#36A2EB', '#FFCE56',
+    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+    '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384', '#36A2EB', '#FFCE56',
+    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+    '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384', '#36A2EB', '#FFCE56',
+    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+    '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384', '#36A2EB', '#FFCE56'
+);
 
 foreach ($weekly_savings as $index => $week) {
     $weekly_labels[] = $week['week_start'] . ' (W' . $week['week_number'] . ')';
@@ -604,14 +613,14 @@ foreach ($current_week_savings as $saving) {
                 <div class="col-lg-6">
                     <div class="card">
                         <div class="card-header">
-                            <h5><i class="fas fa-chart-pie"></i> Weekly Savings Distribution (Last 12 Weeks)</h5>
+                            <h5><i class="fas fa-chart-pie"></i> Weekly Savings Distribution (Last 10 Months)</h5>
                         </div>
                         <div class="card-body">
                             <?php if (count($weekly_savings) > 0): ?>
                                 <canvas id="weeklySavingsChart" style="max-height: 400px;"></canvas>
                             <?php else: ?>
                                 <div class="text-center text-muted py-4">
-                                    No weekly savings data available for the last 12 weeks
+                                    No weekly savings data available for the last 10 months
                                 </div>
                             <?php endif; ?>
                         </div>
