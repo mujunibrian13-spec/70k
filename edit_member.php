@@ -44,85 +44,148 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_member'])) {
     if ($delete_id !== $member_id) {
         $error = 'Invalid member selection for deletion.';
     } else {
-        // Start transaction for safe deletion
-        $conn->begin_transaction();
-        
-        try {
-            $deleted_by = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
-            
-            // First, backup member data to deleted_members table
-            $member_data = json_encode($member);
-            $backup_query = "INSERT INTO deleted_members (member_id, full_name, email, phone, national_id, address, savings_amount, status, date_joined, deleted_by, member_data) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $backup_stmt = $conn->prepare($backup_query);
-            $nin_value = isset($member['nin']) ? $member['nin'] : '';
-            $backup_stmt->bind_param(
-                'isssssdssii', 
-                $delete_id,
-                $member['full_name'],
-                $member['email'],
-                $member['phone'],
-                $nin_value,
-                $member['address'],
-                $member['savings_amount'],
-                $member['status'],
-                $member['date_joined'],
-                $deleted_by,
-                $member_data
-            );
-            $backup_stmt->execute();
+         // Start transaction for safe deletion
+         $conn->query("START TRANSACTION");
+         
+         try {
+             // Ensure deleted_members table exists
+             $deleted_members_sql = "CREATE TABLE IF NOT EXISTS deleted_members (
+                 id INT PRIMARY KEY AUTO_INCREMENT,
+                 member_id INT NOT NULL,
+                 full_name VARCHAR(100) NOT NULL,
+                 email VARCHAR(100),
+                 phone VARCHAR(20),
+                 national_id VARCHAR(50),
+                 address TEXT,
+                 savings_amount DECIMAL(15, 2),
+                 status VARCHAR(50),
+                 date_joined DATE,
+                 nin VARCHAR(14),
+                 identification_number VARCHAR(50),
+                 profile_picture VARCHAR(255),
+                 occupation VARCHAR(100),
+                 deleted_by INT,
+                 deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                 member_data LONGTEXT,
+                 can_restore TINYINT DEFAULT 1,
+                 INDEX idx_member_id (member_id),
+                 INDEX idx_deleted_at (deleted_at)
+             )";
+             $conn->query($deleted_members_sql);
+             
+             // Ensure deletion_log table exists
+             $deletion_log_sql = "CREATE TABLE IF NOT EXISTS deletion_log (
+                 id INT PRIMARY KEY AUTO_INCREMENT,
+                 member_id INT NOT NULL,
+                 member_email VARCHAR(100),
+                 member_name VARCHAR(100),
+                 deleted_by INT,
+                 reason VARCHAR(255),
+                 deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                 restored TINYINT DEFAULT 0,
+                 restored_at DATETIME,
+                 restored_by INT,
+                 INDEX idx_member_id (member_id),
+                 INDEX idx_deleted_at (deleted_at)
+             )";
+             $conn->query($deletion_log_sql);
+             
+             $deleted_by = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+             
+             // First, backup member data to deleted_members table
+             $member_data = json_encode($member);
+             $backup_query = "INSERT INTO deleted_members (member_id, full_name, email, phone, national_id, address, savings_amount, status, date_joined, deleted_by, member_data) 
+                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+             $backup_stmt = $conn->prepare($backup_query);
+             
+             if (!$backup_stmt) {
+                 throw new Exception("Prepare failed: " . $conn->error);
+             }
+             
+             $nin_value = isset($member['nin']) ? $member['nin'] : '';
+             $backup_stmt->bind_param(
+                 'isssssdssii', 
+                 $delete_id,
+                 $member['full_name'],
+                 $member['email'],
+                 $member['phone'],
+                 $nin_value,
+                 $member['address'],
+                 $member['savings_amount'],
+                 $member['status'],
+                 $member['date_joined'],
+                 $deleted_by,
+                 $member_data
+             );
+             
+             if (!$backup_stmt->execute()) {
+                 throw new Exception("Execute failed: " . $backup_stmt->error);
+             }
             
             // Log deletion
             $log_query = "INSERT INTO deletion_log (member_id, member_email, member_name, deleted_by, reason) 
                          VALUES (?, ?, ?, ?, ?)";
             $log_stmt = $conn->prepare($log_query);
-            $reason = 'Admin deletion';
-            $log_stmt->bind_param('issss', $delete_id, $member['email'], $member['full_name'], $deleted_by, $reason);
-            $log_stmt->execute();
+            
+            if ($log_stmt) {
+                $reason = 'Admin deletion';
+                $log_stmt->bind_param('issss', $delete_id, $member['email'], $member['full_name'], $deleted_by, $reason);
+                $log_stmt->execute();
+            }
             
             // Delete member's savings records
             $delete_savings = "DELETE FROM savings WHERE member_id = ?";
             $stmt = $conn->prepare($delete_savings);
-            $stmt->bind_param('i', $delete_id);
-            $stmt->execute();
+            if ($stmt) {
+                $stmt->bind_param('i', $delete_id);
+                $stmt->execute();
+            }
             
             // Delete member's loan records
             $delete_loans = "DELETE FROM loans WHERE member_id = ?";
             $stmt = $conn->prepare($delete_loans);
-            $stmt->bind_param('i', $delete_id);
-            $stmt->execute();
+            if ($stmt) {
+                $stmt->bind_param('i', $delete_id);
+                $stmt->execute();
+            }
             
             // Delete member's transaction records
             $delete_transactions = "DELETE FROM transactions WHERE member_id = ?";
             $stmt = $conn->prepare($delete_transactions);
-            $stmt->bind_param('i', $delete_id);
-            $stmt->execute();
+            if ($stmt) {
+                $stmt->bind_param('i', $delete_id);
+                $stmt->execute();
+            }
             
             // Delete member's interest records
             $delete_interest = "DELETE FROM member_interest WHERE member_id = ?";
             $stmt = $conn->prepare($delete_interest);
-            $stmt->bind_param('i', $delete_id);
-            $stmt->execute();
+            if ($stmt) {
+                $stmt->bind_param('i', $delete_id);
+                $stmt->execute();
+            }
             
             // Finally delete the member
             $delete_member = "DELETE FROM members WHERE id = ?";
             $stmt = $conn->prepare($delete_member);
-            $stmt->bind_param('i', $delete_id);
-            $stmt->execute();
+            if ($stmt) {
+                $stmt->bind_param('i', $delete_id);
+                $stmt->execute();
+            }
             
             // Commit the transaction
-            $conn->commit();
+            $conn->query("COMMIT");
             
             // Redirect to admin dashboard with success message
             $_SESSION['delete_success'] = 'Member deleted successfully. You can undo this action for the next 24 hours.';
             header('Location: admin.php');
             exit();
             
-        } catch (Exception $e) {
+            } catch (Exception $e) {
             // Rollback on error
-            $conn->rollback();
+            $conn->query("ROLLBACK");
             $error = 'Failed to delete member. Error: ' . $e->getMessage();
-        }
+            }
     }
 }
 
