@@ -336,6 +336,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 
                 <!-- Account Details Column -->
                 <div class="col-lg-4">
+                    <!-- Profile Picture Card -->
+                    <div class="card mb-3 text-center">
+                        <div class="card-body">
+                            <?php if (isset($member['profile_picture']) && !empty($member['profile_picture']) && file_exists($member['profile_picture'])): ?>
+                                <img src="<?php echo htmlspecialchars($member['profile_picture']); ?>" alt="<?php echo htmlspecialchars($member['full_name']); ?>" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #667eea; margin-bottom: 15px;">
+                            <?php else: ?>
+                                <div style="width: 150px; height: 150px; border-radius: 50%; background: #e9ecef; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; border: 3px solid #ddd; font-size: 3rem; color: #999;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            <?php endif; ?>
+                            <h5><?php echo htmlspecialchars($member['full_name']); ?></h5>
+                            <p class="text-muted mb-0"><?php echo htmlspecialchars($member['email']); ?></p>
+                        </div>
+                    </div>
+
                     <!-- Account Information Card -->
                     <div class="card mb-3">
                         <div class="card-header">

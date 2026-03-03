@@ -134,13 +134,18 @@ $total_profit = isset($profit_result['total_profit']) ? (float)$profit_result['t
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle"></i> <?php echo $_SESSION['user_name']; ?>
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" style="gap: 8px;">
+                            <?php if (isset($member['profile_picture']) && !empty($member['profile_picture']) && file_exists($member['profile_picture'])): ?>
+                                <img src="<?php echo htmlspecialchars($member['profile_picture']); ?>" alt="<?php echo htmlspecialchars($member['full_name']); ?>" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid white;">
+                            <?php else: ?>
+                                <i class="fas fa-user-circle"></i>
+                            <?php endif; ?>
+                            <?php echo $_SESSION['user_name']; ?>
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="profile.php">My Profile</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="profile.php"><i class="fas fa-user"></i> My Profile</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+                            <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -153,8 +158,19 @@ $total_profit = isset($profit_result['total_profit']) ? (float)$profit_result['t
         <!-- Page Header -->
         <div class="page-header mb-4">
             <div class="container">
-                <h1 class="mb-2">Welcome, <?php echo htmlspecialchars($member['full_name']); ?>!</h1>
-                <p class="mb-0">Here's your account overview and financial summary</p>
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <?php if (isset($member['profile_picture']) && !empty($member['profile_picture']) && file_exists($member['profile_picture'])): ?>
+                        <img src="<?php echo htmlspecialchars($member['profile_picture']); ?>" alt="<?php echo htmlspecialchars($member['full_name']); ?>" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #667eea;">
+                    <?php else: ?>
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: #e9ecef; display: flex; align-items: center; justify-content: center; border: 3px solid #ddd; font-size: 2.5rem; color: #999;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    <?php endif; ?>
+                    <div>
+                        <h1 class="mb-2">Welcome, <?php echo htmlspecialchars($member['full_name']); ?>!</h1>
+                        <p class="mb-0">Here's your account overview and financial summary</p>
+                    </div>
+                </div>
             </div>
         </div>
 

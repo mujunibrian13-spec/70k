@@ -112,15 +112,20 @@ $all_members_savings = $result->fetch_all(MYSQLI_ASSOC);
                         <a class="nav-link active" href="reports.php">Reports</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle"></i> <?php echo $_SESSION['user_name']; ?>
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="profile.php">My Profile</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="logout.php">Logout</a></li>
-                        </ul>
-                    </li>
+                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" style="gap: 8px;">
+                             <?php if (isset($member['profile_picture']) && !empty($member['profile_picture']) && file_exists($member['profile_picture'])): ?>
+                                 <img src="<?php echo htmlspecialchars($member['profile_picture']); ?>" alt="<?php echo htmlspecialchars($member['full_name']); ?>" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid white;">
+                             <?php else: ?>
+                                 <i class="fas fa-user-circle"></i>
+                             <?php endif; ?>
+                             <?php echo $_SESSION['user_name']; ?>
+                         </a>
+                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                             <li><a class="dropdown-item" href="profile.php"><i class="fas fa-user"></i> My Profile</a></li>
+                             <li><hr class="dropdown-divider"></li>
+                             <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                         </ul>
+                     </li>
                 </ul>
             </div>
         </div>
@@ -129,14 +134,25 @@ $all_members_savings = $result->fetch_all(MYSQLI_ASSOC);
     <!-- Main Content -->
     <div class="container-fluid mt-4 mb-5">
         <!-- Page Header -->
-        <div class="page-header mb-4">
-            <div class="container">
-                <h1 class="mb-2">
-                    <i class="fas fa-chart-bar"></i> Financial Reports
-                </h1>
-                <p class="mb-0">View your comprehensive financial statements and history</p>
-            </div>
-        </div>
+         <div class="page-header mb-4">
+             <div class="container">
+                 <div class="d-flex align-items-center gap-3 mb-3">
+                     <?php if (isset($member['profile_picture']) && !empty($member['profile_picture']) && file_exists($member['profile_picture'])): ?>
+                         <img src="<?php echo htmlspecialchars($member['profile_picture']); ?>" alt="<?php echo htmlspecialchars($member['full_name']); ?>" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #667eea;">
+                     <?php else: ?>
+                         <div style="width: 80px; height: 80px; border-radius: 50%; background: #e9ecef; display: flex; align-items: center; justify-content: center; border: 3px solid #ddd; font-size: 2.5rem; color: #999;">
+                             <i class="fas fa-user"></i>
+                         </div>
+                     <?php endif; ?>
+                     <div>
+                         <h1 class="mb-2">
+                             <i class="fas fa-chart-bar"></i> Financial Reports
+                         </h1>
+                         <p class="mb-0">View your comprehensive financial statements and history</p>
+                     </div>
+                 </div>
+             </div>
+         </div>
 
         <div class="container">
             <!-- Summary Statistics Row -->
