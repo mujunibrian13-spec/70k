@@ -905,7 +905,7 @@ function adminResetMemberPassword($conn, $user_id, $new_password) {
     $member_id = $backup['member_id'];
     
     // Start transaction
-    $conn->begin_transaction();
+    $conn->query("START TRANSACTION");
     
     try {
        // Check if member still exists
@@ -916,7 +916,7 @@ function adminResetMemberPassword($conn, $user_id, $new_password) {
        $check_result = $check_stmt->get_result();
        
        if ($check_result->num_rows > 0) {
-           $conn->rollback();
+           $conn->query("ROLLBACK");
            return array('success' => false, 'message' => 'Member already exists in system');
        }
        
@@ -944,24 +944,28 @@ function adminResetMemberPassword($conn, $user_id, $new_password) {
        // Update deletion log
        $log_query = "UPDATE deletion_log SET restored = 1, restored_at = NOW(), restored_by = ? WHERE member_id = ? AND restored = 0";
        $log_stmt = $conn->prepare($log_query);
-       $log_stmt->bind_param('ii', $restored_by, $member_id);
-       $log_stmt->execute();
+       if ($log_stmt) {
+           $log_stmt->bind_param('ii', $restored_by, $member_id);
+           $log_stmt->execute();
+       }
        
        // Mark backup as used
        $update_backup = "UPDATE deleted_members SET can_restore = 0 WHERE id = ?";
        $update_stmt = $conn->prepare($update_backup);
-       $update_stmt->bind_param('i', $deleted_member_id);
-       $update_stmt->execute();
+       if ($update_stmt) {
+           $update_stmt->bind_param('i', $deleted_member_id);
+           $update_stmt->execute();
+       }
        
        // Commit transaction
-       $conn->commit();
+       $conn->query("COMMIT");
        
        return array('success' => true, 'message' => "Member {$backup['full_name']} has been restored successfully");
        
-    } catch (Exception $e) {
-       $conn->rollback();
+       } catch (Exception $e) {
+       $conn->query("ROLLBACK");
        return array('success' => false, 'message' => 'Restore failed: ' . $e->getMessage());
-    }
+       }
     }
 
     ?>
