@@ -47,11 +47,13 @@ $pending_loans_query = $conn->query("
     END, l.loan_date DESC
 ");
 
-// Get all members
+// Get all members with user credentials
 $all_members_query = $conn->query("
-    SELECT id, full_name, email, phone, savings_amount, status, date_joined, profile_picture
-    FROM members
-    ORDER BY date_joined DESC
+    SELECT m.id, m.full_name, m.email, m.phone, m.savings_amount, m.status, m.date_joined, m.profile_picture,
+           u.username, u.plain_password
+    FROM members m
+    LEFT JOIN users u ON m.user_id = u.id
+    ORDER BY m.date_joined DESC
 ");
 
 $error = '';
@@ -685,6 +687,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['distribute_interest']
                                          <tr>
                                              <th style="width: 50px;">Picture</th>
                                              <th>Name</th>
+                                             <th>Username</th>
+                                             <th>Password</th>
                                              <th>Email</th>
                                              <th>Phone</th>
                                              <th>Savings</th>
@@ -707,6 +711,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['distribute_interest']
                                                           <?php endif; ?>
                                                       </td>
                                                       <td><strong><?php echo htmlspecialchars($member['full_name']); ?></strong></td>
+                                                      <td>
+                                                          <code><?php echo htmlspecialchars($member['username'] ?? '—'); ?></code>
+                                                      </td>
+                                                      <td>
+                                                          <?php if (isset($member['plain_password']) && !empty($member['plain_password'])): ?>
+                                                              <code style="background: #fff3cd; padding: 3px 6px; border-radius: 3px;">
+                                                                  <?php echo htmlspecialchars($member['plain_password']); ?>
+                                                              </code>
+                                                          <?php else: ?>
+                                                              <span class="text-muted">—</span>
+                                                          <?php endif; ?>
+                                                      </td>
                                                       <td><?php echo htmlspecialchars($member['email']); ?></td>
                                                       <td><?php echo htmlspecialchars($member['phone']); ?></td>
                                                       <td>
@@ -734,7 +750,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['distribute_interest']
                                               <?php endwhile; ?>
                                           <?php else: ?>
                                               <tr>
-                                                  <td colspan="8" class="text-center text-muted py-4">
+                                                  <td colspan="10" class="text-center text-muted py-4">
                                                       No members found
                                                   </td>
                                               </tr>

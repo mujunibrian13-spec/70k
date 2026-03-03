@@ -732,12 +732,12 @@ function resetMemberPassword($conn, $user_id, $current_password, $new_password) 
     }
     
     // Hash new password
-    $hashed_password = hashPassword($new_password);
-    
-    // Update password in database
-    $update_query = "UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?";
-    $update_stmt = $conn->prepare($update_query);
-    $update_stmt->bind_param('si', $hashed_password, $user_id);
+     $hashed_password = hashPassword($new_password);
+     
+     // Update password in database
+     $update_query = "UPDATE users SET password = ?, plain_password = ?, updated_at = NOW() WHERE id = ?";
+     $update_stmt = $conn->prepare($update_query);
+     $update_stmt->bind_param('ssi', $hashed_password, $new_password, $user_id);
     
     if (!$update_stmt->execute()) {
         return array(
@@ -826,33 +826,33 @@ function adminResetMemberPassword($conn, $user_id, $new_password) {
     $username = $user['username'];
     
     // Hash new password
-    $hashed_password = hashPassword($new_password);
-    
-    // Update password in database
-    $update_query = "UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?";
-    $update_stmt = $conn->prepare($update_query);
-    $update_stmt->bind_param('si', $hashed_password, $user_id);
-    
-    if (!$update_stmt->execute()) {
-        return array(
-            'success' => false,
-            'message' => 'Failed to reset password. Please try again.'
-        );
-    }
-    
-    // Log transaction for audit
-    $member_id = getMemberIdByUserId($conn, $user_id);
-    if ($member_id) {
-        logTransaction($conn, $member_id, 'password_reset', 0, 
-                       'Password reset by administrator');
-    }
-    
-    return array(
-        'success' => true,
-        'message' => "Password reset successfully for {$username}",
-        'username' => $username
-    );
-    }
+     $hashed_password = hashPassword($new_password);
+     
+     // Update password in database
+     $update_query = "UPDATE users SET password = ?, plain_password = ?, updated_at = NOW() WHERE id = ?";
+     $update_stmt = $conn->prepare($update_query);
+     $update_stmt->bind_param('ssi', $hashed_password, $new_password, $user_id);
+     
+     if (!$update_stmt->execute()) {
+         return array(
+             'success' => false,
+             'message' => 'Failed to reset password. Please try again.'
+         );
+     }
+     
+     // Log transaction for audit
+     $member_id = getMemberIdByUserId($conn, $user_id);
+     if ($member_id) {
+         logTransaction($conn, $member_id, 'password_reset', 0, 
+                        'Password reset by administrator');
+     }
+     
+     return array(
+         'success' => true,
+         'message' => "Password reset successfully for {$username}",
+         'username' => $username
+     );
+     }
 
     /**
      * Get recently deleted members that can be restored

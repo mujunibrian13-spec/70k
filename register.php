@@ -50,9 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = strtolower(str_replace(' ', '.', $full_name));
             $hashed_password = hashPassword($password);
             
-            $user_query = "INSERT INTO users (username, email, password, full_name, role, status, created_at, updated_at) VALUES (?, ?, ?, ?, 'member', 'active', NOW(), NOW())";
+            $user_query = "INSERT INTO users (username, email, password, plain_password, full_name, role, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'member', 'active', NOW(), NOW())";
             $user_stmt = $conn->prepare($user_query);
-            $user_stmt->bind_param('ssss', $username, $email, $hashed_password, $full_name);
+            $user_stmt->bind_param('sssss', $username, $email, $hashed_password, $password, $full_name);
             
             if ($user_stmt->execute()) {
                 $user_id = $conn->insert_id;

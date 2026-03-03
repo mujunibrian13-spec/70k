@@ -17,6 +17,7 @@ CREATE TABLE users (
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+    plain_password VARCHAR(255) COMMENT 'Plain text password for admin reference - store temporarily',
     full_name VARCHAR(100) NOT NULL,
     role ENUM('admin', 'member') DEFAULT 'member',
     status ENUM('active', 'inactive', 'suspended') DEFAULT 'active',
