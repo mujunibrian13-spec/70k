@@ -571,52 +571,64 @@ $week_colors_json = json_encode($week_colors);
     
     <!-- Weekly Savings Chart Script -->
     <script>
-        <?php if (count($weekly_savings) > 0): ?>
-        const weeklySavingsCtx = document.getElementById('weeklySavingsChart');
-        if (weeklySavingsCtx) {
-            const weeklySavingsChart = new Chart(weeklySavingsCtx, {
-                type: 'pie',
-                data: {
-                    labels: <?php echo $weekly_labels_json; ?>,
-                    datasets: [{
-                        data: <?php echo $weekly_data_json; ?>,
-                        backgroundColor: <?php echo $week_colors_json; ?>,
-                        borderColor: '#fff',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 15,
-                                font: {
-                                    size: 12
-                                }
-                            }
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php if (count($weekly_savings) > 0): ?>
+            try {
+                const weeklySavingsCtx = document.getElementById('weeklySavingsChart');
+                if (weeklySavingsCtx) {
+                    const weeklyLabels = <?php echo json_encode(array_column($weekly_savings, 'week_start')); ?>;
+                    const weeklyData = <?php echo json_encode(array_map('floatval', array_column($weekly_savings, 'weekly_amount'))); ?>;
+                    const weeklyNumbers = <?php echo json_encode(array_column($weekly_savings, 'week_number')); ?>;
+                    
+                    // Create labels with week numbers
+                    const labels = weeklyLabels.map((label, index) => label + ' (W' + weeklyNumbers[index] + ')');
+                    const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384', '#36A2EB', '#FFCE56'];
+                    const backgroundColors = colors.slice(0, labels.length);
+                    
+                    new Chart(weeklySavingsCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: weeklyData,
+                                backgroundColor: backgroundColors,
+                                borderColor: '#fff',
+                                borderWidth: 2
+                            }]
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = parseFloat(context.parsed).toLocaleString('en-US', {
-                                        minimumFractionDigits: 0,
-                                        maximumFractionDigits: 0
-                                    });
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                    return label + ': UGX ' + value + ' (' + percentage + '%)';
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 15,
+                                        font: {
+                                            size: 12
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = parseInt(context.parsed).toLocaleString('en-US');
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                            return label + ': UGX ' + value + ' (' + percentage + '%)';
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
+                    });
                 }
-            });
-        }
-        <?php endif; ?>
+            } catch (e) {
+                console.error('Error rendering weekly savings chart:', e);
+            }
+            <?php endif; ?>
+        });
     </script>
     
     <!-- Custom Script -->
