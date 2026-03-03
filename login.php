@@ -35,14 +35,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $result->fetch_assoc();
             
             // Verify password
-             if (verifyPassword($password, $user['password'])) {
-                 // Update last_login timestamp
-                 $login_update = "UPDATE users SET last_login = NOW(), updated_at = NOW() WHERE id = ?";
-                 $login_stmt = $conn->prepare($login_update);
-                 if ($login_stmt) {
-                     $login_stmt->bind_param('i', $user['id']);
-                     $login_stmt->execute();
-                 }
+            if (verifyPassword($password, $user['password'])) {
+                // Ensure login_logout_history table exists
+                $create_history = "CREATE TABLE IF NOT EXISTS login_logout_history (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    user_id INT NOT NULL,
+                    action VARCHAR(20) NOT NULL,
+                    action_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id),
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_action_time (action_time)
+                )";
+                $conn->query($create_history);
+                
+                // Update last_login timestamp
+                $login_update = "UPDATE users SET last_login = NOW(), updated_at = NOW() WHERE id = ?";
+                $login_stmt = $conn->prepare($login_update);
+                if ($login_stmt) {
+                    $login_stmt->bind_param('i', $user['id']);
+                    $login_stmt->execute();
+                }
+                
+                // Log the login action
+                $log_query = "INSERT INTO login_logout_history (user_id, action, action_time) VALUES (?, 'login', NOW())";
+                $log_stmt = $conn->prepare($log_query);
+                if ($log_stmt) {
+                    $log_stmt->bind_param('is', $user['id'], 'login');
+                    $log_stmt->execute();
+                }
                  
                  // Set session variables
                  $_SESSION['user_id'] = $user['id'];

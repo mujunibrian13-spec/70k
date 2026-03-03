@@ -21,11 +21,14 @@ CREATE TABLE users (
     role ENUM('admin', 'member') DEFAULT 'member',
     status ENUM('active', 'inactive', 'suspended') DEFAULT 'active',
     last_login DATETIME,
+    last_logout DATETIME,
     created_at DATETIME,
     updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_username (username),
     INDEX idx_email (email),
-    INDEX idx_role (role)
+    INDEX idx_role (role),
+    INDEX idx_last_login (last_login),
+    INDEX idx_last_logout (last_logout)
 );
 
 -- ============================================
@@ -288,6 +291,20 @@ CREATE INDEX idx_loan_member_date ON loans(member_id, loan_date);
 CREATE INDEX idx_transaction_member_type ON transactions(member_id, transaction_type);
 CREATE INDEX idx_payment_loan_date ON loan_payments(loan_id, payment_date);
 CREATE INDEX idx_audit_date_action ON audit_log(action_date, action);
+
+-- ============================================
+-- TABLE: Login/Logout History
+-- ============================================
+CREATE TABLE IF NOT EXISTS login_logout_history (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    action VARCHAR(20) NOT NULL COMMENT 'login or logout',
+    action_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_action_time (action_time),
+    INDEX idx_action (action)
+);
 
 -- ============================================
 -- TABLE: Deleted Members (Backup/Undo)
