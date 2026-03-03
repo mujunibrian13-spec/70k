@@ -693,19 +693,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['distribute_interest']
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">
-                                <table class="table table-hover mb-0">
+                                <table class="table table-hover mb-0" style="font-size: 0.9rem; white-space: nowrap;">
                                     <thead>
                                          <tr>
-                                             <th style="width: 50px;">Picture</th>
-                                             <th>Name</th>
-                                             <th>Username</th>
-                                             <th>Password</th>
-                                             <th>Email</th>
-                                             <th>Phone</th>
-                                             <th>Savings</th>
-                                             <th>Status</th>
-                                             <th>Joined</th>
-                                             <th>Actions</th>
+                                             <th style="width: 50px;">Pic</th>
+                                             <th style="width: 120px;">Name</th>
+                                             <th style="width: 100px;">Username</th>
+                                             <th style="width: 120px;">Password</th>
+                                             <th style="width: 150px;">Email</th>
+                                             <th style="width: 100px;">Phone</th>
+                                             <th style="width: 90px; text-align: right;">Savings</th>
+                                             <th style="width: 70px;">Status</th>
+                                             <th style="width: 85px;">Joined</th>
+                                             <th style="width: 90px;">Actions</th>
                                          </tr>
                                       </thead>
                                       <tbody>
@@ -721,23 +721,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['distribute_interest']
                                                               </div>
                                                           <?php endif; ?>
                                                       </td>
-                                                      <td><strong><?php echo htmlspecialchars($member['full_name']); ?></strong></td>
-                                                      <td>
-                                                          <code><?php echo htmlspecialchars(isset($member['username']) && !empty($member['username']) ? $member['username'] : '—'); ?></code>
+                                                      <td style="max-width: 120px; overflow: hidden; text-overflow: ellipsis;" title="<?php echo htmlspecialchars($member['full_name']); ?>"><strong><?php echo htmlspecialchars(substr($member['full_name'], 0, 15)); ?></strong></td>
+                                                      <td style="max-width: 100px; overflow: hidden; text-overflow: ellipsis;">
+                                                          <code><?php echo htmlspecialchars(isset($member['username']) && !empty($member['username']) ? substr($member['username'], 0, 12) : '—'); ?></code>
                                                       </td>
-                                                      <td>
+                                                      <td style="max-width: 120px; overflow: hidden; text-overflow: ellipsis;">
                                                           <?php if (isset($member['plain_password']) && !empty($member['plain_password'])): ?>
-                                                              <code style="background: #fff3cd; padding: 3px 6px; border-radius: 3px;">
-                                                                  <?php echo htmlspecialchars($member['plain_password']); ?>
+                                                              <code style="background: #fff3cd; padding: 2px 4px; border-radius: 2px; font-size: 0.85rem;" title="<?php echo htmlspecialchars($member['plain_password']); ?>">
+                                                                  <?php echo htmlspecialchars(substr($member['plain_password'], 0, 12)); ?>
                                                               </code>
                                                           <?php else: ?>
                                                               <span class="text-muted">—</span>
                                                           <?php endif; ?>
                                                       </td>
-                                                      <td><?php echo htmlspecialchars($member['email']); ?></td>
-                                                      <td><?php echo htmlspecialchars($member['phone']); ?></td>
-                                                      <td>
-                                                          <span class="text-success">
+                                                      <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;" title="<?php echo htmlspecialchars($member['email']); ?>"><?php echo htmlspecialchars(substr($member['email'], 0, 18)); ?></td>
+                                                      <td style="max-width: 100px; overflow: hidden; text-overflow: ellipsis;"><?php echo htmlspecialchars($member['phone']); ?></td>
+                                                      <td style="text-align: right;">
+                                                          <span class="text-success" style="font-size: 0.85rem;">
                                                               <?php echo formatCurrency($member['savings_amount']); ?>
                                                           </span>
                                                       </td>
