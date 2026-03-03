@@ -924,6 +924,11 @@ function adminResetMemberPassword($conn, $user_id, $new_password) {
        $restore_query = "INSERT INTO members (id, full_name, email, phone, national_id, address, savings_amount, status, date_joined) 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
        $restore_stmt = $conn->prepare($restore_query);
+       
+       if (!$restore_stmt) {
+           throw new Exception('Prepare failed: ' . $conn->error);
+       }
+       
        $restore_stmt->bind_param(
            'isssssdss',
            $member_id,
@@ -938,7 +943,7 @@ function adminResetMemberPassword($conn, $user_id, $new_password) {
        );
        
        if (!$restore_stmt->execute()) {
-           throw new Exception('Failed to restore member');
+           throw new Exception('Failed to restore member: ' . $restore_stmt->error);
        }
        
        // Update deletion log
