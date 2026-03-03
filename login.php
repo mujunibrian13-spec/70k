@@ -222,25 +222,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     
                     <!-- Password Field -->
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-lock"></i>
-                            </span>
-                            <input 
-                                type="password" 
-                                class="form-control" 
-                                id="password" 
-                                name="password" 
-                                placeholder="Enter your password"
-                                required
-                            >
-                        </div>
-                        <div class="invalid-feedback">
-                            Please enter your password
-                        </div>
-                    </div>
+                     <div class="mb-3">
+                         <label for="password" class="form-label">Password</label>
+                         <div class="input-group">
+                             <span class="input-group-text">
+                                 <i class="fas fa-lock"></i>
+                             </span>
+                             <input 
+                                 type="password" 
+                                 class="form-control" 
+                                 id="password" 
+                                 name="password" 
+                                 placeholder="Enter your password"
+                                 required
+                             >
+                             <button 
+                                 type="button" 
+                                 class="btn btn-outline-secondary" 
+                                 id="togglePassword"
+                                 onclick="togglePasswordVisibility()"
+                                 title="Show/Hide Password"
+                             >
+                                 <i class="fas fa-eye" id="toggleIcon"></i>
+                             </button>
+                         </div>
+                         <div class="invalid-feedback">
+                             Please enter your password
+                         </div>
+                     </div>
                     
                     <!-- Remember Me Checkbox -->
                     <div class="mb-3 form-check">
@@ -276,6 +285,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Password Toggle Script -->
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                // Show password
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                // Hide password
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+    </script>
     
     <!-- Custom Script -->
     <script src="js/script.js"></script>
